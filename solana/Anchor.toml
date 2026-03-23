@@ -1,0 +1,22 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.localnet]
+curvy_portal = "5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP"
+
+[programs.devnet]
+curvy_portal = "5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP"
+
+[programs.mainnet]
+curvy_portal = "5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP"
+
+[registry]
+url = "https://api.dev.secondstate.io"
+
+[provider]
+cluster = "localnet"
+wallet = "/Users/vanja/.config/solana/id.json"
+
+[scripts]
+test = "npx vitest run --reporter verbose"

@@ -1,0 +1,8 @@
+# Solana/Anchor build artifacts
+**/target/
+**/.anchor/
+*.so
+Anchor.toml.bak
+
+# Solana IDL generated files
+**/*.json.map
