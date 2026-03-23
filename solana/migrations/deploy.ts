@@ -1,7 +1,11 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-import type { CurvyPortal } from "../target/types/curvy_portal";
+import { PublicKey } from "@solana/web3.js";
+import { createRequire } from "module";
+import type { CurvyPortal } from "../target/types/curvy_portal.js";
+
+const require = createRequire(import.meta.url);
+const idl = require("../target/idl/curvy_portal.json");
 
 const CONFIG_SEED = Buffer.from("config");
 
@@ -9,21 +13,19 @@ async function main() {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.CurvyPortal as Program<CurvyPortal>;
+  const programId = new PublicKey(idl.address);
+  const program = new Program<CurvyPortal>(idl, provider);
 
-  console.log("Program ID:", program.programId.toBase58());
+  console.log("Program ID:", programId.toBase58());
   console.log("Authority:", provider.wallet.publicKey.toBase58());
 
   // Derive config PDA
-  const [configPda] = PublicKey.findProgramAddressSync(
-    [CONFIG_SEED],
-    program.programId,
-  );
+  const [configPda] = PublicKey.findProgramAddressSync([CONFIG_SEED], programId);
 
   console.log("Config PDA:", configPda.toBase58());
 
   // Operator wallet — set this to the backend operator's pubkey
-  const operatorWallet = getOperatorPubkey();
+  const operatorWallet = getOperatorPubkey(provider);
 
   console.log("Operator:", operatorWallet.toBase58());
 
@@ -33,10 +35,7 @@ async function main() {
     console.log("Config already initialized:");
     console.log("  Authority:", existingConfig.authority.toBase58());
     console.log("  Operator:", existingConfig.operator.toBase58());
-    console.log(
-      "  Destination Chain ID:",
-      existingConfig.destinationChainId.toString(),
-    );
+    console.log("  Destination Chain ID:", existingConfig.destinationChainId.toString());
     return;
   } catch {
     // Config doesn't exist yet — proceed with initialization
@@ -47,8 +46,6 @@ async function main() {
     .initialize(operatorWallet)
     .accounts({
       authority: provider.wallet.publicKey,
-      config: configPda,
-      systemProgram: SystemProgram.programId,
     })
     .rpc();
 
@@ -59,22 +56,15 @@ async function main() {
   console.log("Verified config:");
   console.log("  Authority:", config.authority.toBase58());
   console.log("  Operator:", config.operator.toBase58());
-  console.log(
-    "  Destination Chain ID:",
-    config.destinationChainId.toString(),
-  );
+  console.log("  Destination Chain ID:", config.destinationChainId.toString());
 }
 
-function getOperatorPubkey(): PublicKey {
+function getOperatorPubkey(provider: anchor.AnchorProvider): PublicKey {
   const operatorEnv = process.env.PORTAL_OPERATOR_PUBKEY;
   if (operatorEnv) {
     return new PublicKey(operatorEnv);
   }
-  // Default to the deployer's wallet for development
-  const provider = anchor.AnchorProvider.env();
-  console.warn(
-    "WARNING: No PORTAL_OPERATOR_PUBKEY set — using deployer wallet as operator",
-  );
+  console.warn("WARNING: No PORTAL_OPERATOR_PUBKEY set — using deployer wallet as operator");
   return provider.wallet.publicKey;
 }
 
