@@ -7,7 +7,10 @@
     "build": "anchor build",
     "test": "anchor test",
     "deploy:devnet": "anchor deploy --provider.cluster devnet",
-    "deploy:mainnet": "anchor deploy --provider.cluster mainnet"
+    "deploy:mainnet": "anchor deploy --provider.cluster mainnet",
+    "derive-portal": "npx tsx scripts/derive-portal.ts",
+    "init:devnet": "ANCHOR_PROVIDER_URL=https://api.devnet.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx tsx migrations/deploy.ts",
+    "init:mainnet": "ANCHOR_PROVIDER_URL=https://api.mainnet-beta.solana.com ANCHOR_WALLET=~/.config/solana/id.json npx tsx migrations/deploy.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
@@ -17,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.0.0",
     "vitest": "^3.2.1"
   }

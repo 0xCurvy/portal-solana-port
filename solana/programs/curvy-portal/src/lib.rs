@@ -7,7 +7,7 @@ pub mod state;
 
 use instructions::*;
 
-declare_id!("5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP");
+declare_id!("2xtW8gNRYb82DSqS9Frv3KLNyeKkGMjtRYDxUtu83Na7");
 
 #[program]
 pub mod curvy_portal {
