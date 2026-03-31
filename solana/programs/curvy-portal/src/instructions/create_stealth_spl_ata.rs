@@ -40,6 +40,9 @@ pub struct CreateStealthSplAta<'info> {
 
     /// CHECK: Vault PDA authority for ATA.
     #[account(
+        init_if_needed,
+        payer = operator,
+        space = 0,
         seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery.key().as_ref()],
         bump,
         constraint = owner_hash != [0u8; 32] @ PortalError::InvalidOwnerHash,

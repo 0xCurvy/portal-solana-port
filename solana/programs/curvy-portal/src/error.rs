@@ -20,6 +20,9 @@ pub enum PortalError {
     #[msg("Invalid owner hash: must be non-zero")]
     InvalidOwnerHash,
 
+    #[msg("SOL vault must be system-owned; use a new (owner_hash, recovery) or reset local state")]
+    InvalidVaultOwner,
+
     #[msg("Invalid destination: operator address mismatch")]
     InvalidDestination,
 

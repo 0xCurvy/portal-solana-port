@@ -1573,9 +1573,6 @@ describe("curvy-portal", () => {
     if (!Number.isFinite(fillDeadline)) fillDeadline = now + 21599;
     fillDeadline = Math.min(Math.max(fillDeadline, now + 1), now + 21600 - 1);
 
-    console.log(`    quoteTimestamp : ${quoteTimestamp}`);
-    console.log(`    fillDeadline   : ${fillDeadline}`);
-    console.log(`    outputAmount   : ${outputAmount}`);
 
     return {
       recipient: evmToPublicKey(evmRecipient),
@@ -1637,7 +1634,6 @@ describe("curvy-portal", () => {
       );
     }
 
-    console.log(`Token balance set to: ${amount}`);
   }
 
   describe("bridgeSpl USDC (AcrossV4)", () => {
@@ -1696,17 +1692,11 @@ describe("curvy-portal", () => {
 
       const user1UsdcAta = getAssociatedTokenAddressSync(USDC_SOLANA, user1.publicKey, true);
 
-      console.log("\n  Checking USDC in source (user1) and stealth destination (vaultAta)...");
-
       const vaultAcc = await getAccount(connection, vaultAta);
       const vaultBalance = BigInt(vaultAcc.amount.toString());
-      console.log(`    vaultAta: ${vaultAta.toBase58()} (vault PDA: ${vault.toBase58()})`);
-      console.log(`    vault USDC amount(raw): ${vaultAcc.amount.toString()} (human: ${Number(vaultBalance) / 1e6} USDC)`);
 
       let user1Acc = await getAccount(connection, user1UsdcAta);
       const user1Balance = BigInt(user1Acc.amount.toString());
-      console.log(`    user1 USDC ATA: ${user1UsdcAta.toBase58()}`);
-      console.log(`    user1 USDC amount(raw): ${user1Acc.amount.toString()} (human: ${Number(user1Balance) / 1e6} USDC)`);
 
       const expected = BigInt(BRIDGE_AMOUNT);
       if (vaultBalance > expected) {
@@ -1718,7 +1708,6 @@ describe("curvy-portal", () => {
 
       const needed = expected - vaultBalance;
       if (needed > BigInt(0)) {
-        console.log(`    transfer ${needed.toString()} raw USDC from user1UsdcAta to vaultAta`);
         if (needed > BigInt(Number.MAX_SAFE_INTEGER)) {
           throw new Error(`needed too large for JS number: ${needed.toString()}`);
         }
@@ -1740,7 +1729,6 @@ describe("curvy-portal", () => {
 
       const vaultAcc2 = await getAccount(connection, vaultAta);
       const vaultBalance2 = BigInt(vaultAcc2.amount.toString());
-      console.log(`    after transfer vault USDC amount(raw): ${vaultBalance2.toString()}`);
 
       if (vaultBalance2 !== expected) {
         throw new Error(
@@ -1748,17 +1736,12 @@ describe("curvy-portal", () => {
         );
       }
 
-      console.log("\n  LiFi quote USDC (Solana) to USDC (Arbitrum)...");
       const quote = await getLifiQuoteUSDC(vault.toBase58(), EVM_RECIPIENT, BRIDGE_AMOUNT);
 
-      console.log(`    Tool           : ${quote.toolDetails?.name}`);
-      console.log(`    Input          : ${BRIDGE_AMOUNT / 1e6} USDC`);
-      console.log(`    Output         : ${Number(BigInt(quote.estimate.toAmount)) / 1e6} USDC`);
       const totalFees = (quote.estimate.feeCosts ?? []).reduce(
         (s: number, f: any) => s + parseFloat(f.amountUSD),
         0
       );
-      console.log(`    Total fees: $${totalFees.toFixed(4)}`);
 
       const quoteParams = buildQuoteParams(quote, EVM_RECIPIENT, USDC_ARBITRUM_EVM);
 
@@ -1769,7 +1752,6 @@ describe("curvy-portal", () => {
         inputAmount: BRIDGE_AMOUNT,
         quoteParams,
       });
-      console.log(`acrossDelegate: ${acrossDelegate.toBase58()}`);
 
       let tx: string;
       try {
@@ -1798,8 +1780,6 @@ describe("curvy-portal", () => {
         }
         throw e;
       }
-
-      console.log(`TX: ${tx}`);
 
       const [portalPda] = PublicKey.findProgramAddressSync(
         [PORTAL_META_SEED_BUF, ownerBuf, recovery.publicKey.toBuffer()],
@@ -1961,25 +1941,27 @@ describe("curvy-portal", () => {
         program.programId
       );
 
-      console.log(
-        "\n  LiFi Relay: first try WSOL to Wormhole SOL, fallback to WSOL to WETH (same vault / native bridge)..."
-      );
       const quote = await getLifiQuoteSOL_Relay(vault.toBase58(), EVM_RECIPIENT, BRIDGE_LAMPORTS);
       const relayStep = findRelayStepInQuote(quote);
-      console.log(`    LiFi tool       : ${quote.toolDetails?.name ?? quote.tool}`);
-      console.log(`    Relay step tool : ${relayStep?.toolDetails?.name ?? relayStep?.tool}`);
       const relayIdBytes = relayIdFromLifiQuote(quote);
-      console.log(`    relay_id (keccak LiFi id): [${relayIdBytes.slice(0, 4).join(",")}]...`);
+
+      const minVaultRentExempt0 =
+        await connection.getMinimumBalanceForRentExemption(0);
+      const vaultLamportsBefore = await connection.getBalance(vault);
 
       await provider.sendAndConfirm(
         new Transaction().add(
           SystemProgram.transfer({
             fromPubkey: admin.publicKey,
             toPubkey: vault,
-            lamports: BRIDGE_LAMPORTS + 5_000_000,
+            lamports: BRIDGE_LAMPORTS,
           })
         )
       );
+
+      const vaultLamportsAfter = await connection.getBalance(vault);
+      const requiredLamports = minVaultRentExempt0 + BRIDGE_LAMPORTS;
+      const shortfall = Math.max(0, requiredLamports - vaultLamportsAfter);
 
       const tx = await (program as any).methods
         .bridgeRelaySol(ownerHashSol(), new BN(BRIDGE_LAMPORTS), relayIdBytes)
@@ -2024,31 +2006,17 @@ describe("curvy-portal", () => {
       const vaultAta = getAssociatedTokenAddressSync(USDC_SOLANA, vault, true);
       const user1UsdcAta = getAssociatedTokenAddressSync(USDC_SOLANA, user1.publicKey, true);
 
-      console.log("\n  LiFi quote USDC (Solana) to USDC (Arbitrum), Relay only...");
       const { quote, source } = await resolveRelayUsdcLifiQuote(
         vault.toBase58(),
         EVM_RECIPIENT,
         BRIDGE_AMOUNT
       );
-      if (source === "live") {
-        console.log("source: LiFi (live: /quote or POST /advanced/routes)");
-      } else {
-        console.log(
-          "source: fixture (simulated POST /v1/advanced/routes - same parser as UI)"
-        );
-      }
+      
       const relayStep = findRelayStepInQuote(quote);
-      console.log(`    LiFi tool       : ${quote.toolDetails?.name ?? quote.tool}`);
-      console.log(`    Relay step tool : ${relayStep?.toolDetails?.name ?? relayStep?.tool}`);
-      const amountFromQuote = relayBridgeInputAmountFromQuote(quote, BRIDGE_AMOUNT);
-      if (amountFromQuote !== BRIDGE_AMOUNT) {
-        console.log(
-          `    Note: LiFi estimate.fromAmount (${amountFromQuote}) differs from requested ${BRIDGE_AMOUNT}; using requested for vault funding.`
-        );
-      }
-      const relayIdBytes = relayIdFromLifiQuote(quote);
-      console.log(`    relay_id (keccak route/quote id): [${relayIdBytes.slice(0, 4).join(",")}...]`);
 
+      const amountFromQuote = relayBridgeInputAmountFromQuote(quote, BRIDGE_AMOUNT);
+
+      const relayIdBytes = relayIdFromLifiQuote(quote);
       const vaultAcc = await getAccount(connection, vaultAta);
       const vaultBalance = BigInt(vaultAcc.amount.toString());
       const expected = BigInt(BRIDGE_AMOUNT);
@@ -2069,6 +2037,8 @@ describe("curvy-portal", () => {
         await connection.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, "confirmed");
       }
 
+      const vaultPdaLamportsBefore = await connection.getBalance(vault);
+
       const tx = await (program as any).methods
         .bridgeRelaySpl(ownerHashSpl(), new BN(BRIDGE_AMOUNT), relayIdBytes)
         .accounts({
@@ -2087,6 +2057,8 @@ describe("curvy-portal", () => {
         .rpc({ commitment: "confirmed" });
 
       expect(tx).to.be.a("string");
+
+      const vaultPdaLamportsAfter = await connection.getBalance(vault);
 
       const [portalPda] = PublicKey.findProgramAddressSync(
         [PORTAL_META_SEED_BUF, ownerBuf, recoverySpl.publicKey.toBuffer()],
