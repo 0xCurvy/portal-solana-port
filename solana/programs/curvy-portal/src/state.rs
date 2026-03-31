@@ -7,6 +7,8 @@ pub struct PortalConfig {
     pub authority: Pubkey,
     /// Backend operator wallet — calls create_and_bridge and receives withdrawn funds
     pub operator: Pubkey,
+    /// When true, new bridge/withdraw flows are paused (admin can toggle).
+    pub paused: bool,
     /// Destination chain ID for bridging (42161 = Arbitrum)
     pub destination_chain_id: u64,
     /// PDA bump seed

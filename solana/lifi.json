@@ -1,0 +1,458 @@
+{
+    "type": "lifi",
+    "id": "42cdb8db-de28-4001-af9e-691c25d5b3ec:0",
+    "tool": "across",
+    "toolDetails": {
+      "key": "across",
+      "name": "AcrossV4",
+      "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/bridges/across.svg"
+    },
+    "action": {
+      "fromToken": {
+        "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "chainId": 1151111081099710,
+        "symbol": "USDC",
+        "decimals": 6,
+        "name": "USD Coin",
+        "coinKey": "USDC",
+        "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        "priceUSD": "0.999809",
+        "tags": [
+          "stablecoin"
+        ],
+        "verificationStatus": "unverified",
+        "verificationStatusBreakdown": []
+      },
+      "fromAmount": "1000000",
+      "toToken": {
+        "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+        "chainId": 42161,
+        "symbol": "USDC",
+        "decimals": 6,
+        "name": "USD Coin",
+        "coinKey": "USDC",
+        "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        "priceUSD": "0.99977",
+        "tags": [
+          "stablecoin"
+        ],
+        "verificationStatus": "unverified",
+        "verificationStatusBreakdown": []
+      },
+      "fromChainId": 1151111081099710,
+      "toChainId": 42161,
+      "slippage": 0.001,
+      "fromAddress": "4Nd1mBQtrMJVYVfKf2PX98HegNC3HVakPmL8LhJVkcpk",
+      "toAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "destinationGasConsumption": "",
+      "destinationCallData": "0x00",
+      "jitoBundle": false
+    },
+    "estimate": {
+      "tool": "across",
+      "approvalAddress": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+      "toAmountMin": "991468",
+      "toAmount": "991468",
+      "fromAmount": "1000000",
+      "feeCosts": [
+        {
+          "name": "LIFI Fixed Fee",
+          "description": "Fixed LIFI fee, independent of any other fee",
+          "token": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "amount": "2500",
+          "amountUSD": "0.0025",
+          "percentage": "0.0025",
+          "included": true,
+          "feeSplit": {
+            "integratorFee": "0",
+            "lifiFee": "2500"
+          }
+        },
+        {
+          "name": "Relayer fee",
+          "description": "The fee taken by the relayer",
+          "token": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "amount": "199",
+          "amountUSD": "0.0002",
+          "percentage": "0.000200",
+          "included": true
+        },
+        {
+          "name": "Relayer gas fee",
+          "description": "The gas fee taken by the relayer",
+          "token": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "amount": "5686",
+          "amountUSD": "0.0057",
+          "percentage": "0.005701",
+          "included": true
+        },
+        {
+          "name": "LP fee",
+          "description": "The fee taken by the liquidity provider",
+          "token": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "amount": "147",
+          "amountUSD": "0.0001",
+          "percentage": "0.000148",
+          "included": true
+        }
+      ],
+      "gasCosts": [
+        {
+          "token": {
+            "address": "11111111111111111111111111111111",
+            "chainId": 1151111081099710,
+            "symbol": "SOL",
+            "decimals": 9,
+            "name": "SOL",
+            "coinKey": "SOL",
+            "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
+            "priceUSD": "82.5",
+            "tags": [
+              "major_asset"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "amount": "17809",
+          "amountUSD": "0.0014692425",
+          "estimate": "17809",
+          "limit": "17809",
+          "price": "1",
+          "type": "SEND"
+        }
+      ],
+      "executionDuration": 4,
+      "fromAmountUSD": "0.9998",
+      "toAmountUSD": "0.9912",
+      "skipPermit": false
+    },
+    "includedSteps": [
+      {
+        "id": "f208acbf-cd0d-4f04-a4fd-e282b5ba65a6",
+        "type": "protocol",
+        "action": {
+          "fromChainId": 1151111081099710,
+          "fromAmount": "1000000",
+          "fromToken": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "toChainId": 1151111081099710,
+          "toToken": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "slippage": 0.001,
+          "fromAddress": "4Nd1mBQtrMJVYVfKf2PX98HegNC3HVakPmL8LhJVkcpk",
+          "toAddress": "4Nd1mBQtrMJVYVfKf2PX98HegNC3HVakPmL8LhJVkcpk",
+          "jitoBundle": false
+        },
+        "estimate": {
+          "fromAmount": "1000000",
+          "toAmount": "997500",
+          "toAmountMin": "997500",
+          "tool": "feeCollection",
+          "approvalAddress": "0x0000000000000000000000000000000000000000",
+          "gasCosts": [
+            {
+              "type": "SEND",
+              "price": "1",
+              "estimate": "130000",
+              "limit": "169000",
+              "amount": "130000",
+              "amountUSD": "0.0107",
+              "token": {
+                "address": "11111111111111111111111111111111",
+                "chainId": 1151111081099710,
+                "symbol": "SOL",
+                "decimals": 9,
+                "name": "SOL",
+                "coinKey": "SOL",
+                "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
+                "priceUSD": "82.5",
+                "tags": [
+                  "major_asset"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              }
+            }
+          ],
+          "feeCosts": [
+            {
+              "name": "LIFI Fixed Fee",
+              "description": "Fixed LIFI fee, independent of any other fee",
+              "token": {
+                "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "chainId": 1151111081099710,
+                "symbol": "USDC",
+                "decimals": 6,
+                "name": "USD Coin",
+                "coinKey": "USDC",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+                "priceUSD": "0.999809",
+                "tags": [
+                  "stablecoin"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              },
+              "amount": "2500",
+              "amountUSD": "0.0025",
+              "percentage": "0.0025",
+              "included": true,
+              "feeSplit": {
+                "integratorFee": "0",
+                "lifiFee": "2500"
+              }
+            }
+          ],
+          "executionDuration": 0
+        },
+        "tool": "feeCollection",
+        "toolDetails": {
+          "key": "feeCollection",
+          "name": "Integrator Fee",
+          "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/protocols/feeCollection.svg"
+        }
+      },
+      {
+        "id": "982ca41d-e18d-45ac-a9e0-949cf2045bcd",
+        "type": "cross",
+        "action": {
+          "fromChainId": 1151111081099710,
+          "fromAmount": "997500",
+          "fromToken": {
+            "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "chainId": 1151111081099710,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.999809",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "toChainId": 42161,
+          "toToken": {
+            "address": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+            "chainId": 42161,
+            "symbol": "USDC",
+            "decimals": 6,
+            "name": "USD Coin",
+            "coinKey": "USDC",
+            "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            "priceUSD": "0.99977",
+            "tags": [
+              "stablecoin"
+            ],
+            "verificationStatus": "unverified",
+            "verificationStatusBreakdown": []
+          },
+          "slippage": 0.001,
+          "fromAddress": "4Nd1mBQtrMJVYVfKf2PX98HegNC3HVakPmL8LhJVkcpk",
+          "toAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "jitoBundle": false,
+          "destinationGasConsumption": "0"
+        },
+        "estimate": {
+          "fromAmount": "997500",
+          "toAmount": "991468",
+          "toAmountMin": "991468",
+          "approvalAddress": "DLv3NggMiSaef97YCkew5xKUHDh13tVGZ7tydt3ZeAru",
+          "executionDuration": 4,
+          "feeCosts": [
+            {
+              "name": "Relayer fee",
+              "description": "The fee taken by the relayer",
+              "token": {
+                "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "chainId": 1151111081099710,
+                "symbol": "USDC",
+                "decimals": 6,
+                "name": "USD Coin",
+                "coinKey": "USDC",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+                "priceUSD": "0.999809",
+                "tags": [
+                  "stablecoin"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              },
+              "amount": "199",
+              "amountUSD": "0.0002",
+              "percentage": "0.000200",
+              "included": true
+            },
+            {
+              "name": "Relayer gas fee",
+              "description": "The gas fee taken by the relayer",
+              "token": {
+                "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "chainId": 1151111081099710,
+                "symbol": "USDC",
+                "decimals": 6,
+                "name": "USD Coin",
+                "coinKey": "USDC",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+                "priceUSD": "0.999809",
+                "tags": [
+                  "stablecoin"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              },
+              "amount": "5686",
+              "amountUSD": "0.0057",
+              "percentage": "0.005701",
+              "included": true
+            },
+            {
+              "name": "LP fee",
+              "description": "The fee taken by the liquidity provider",
+              "token": {
+                "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+                "chainId": 1151111081099710,
+                "symbol": "USDC",
+                "decimals": 6,
+                "name": "USD Coin",
+                "coinKey": "USDC",
+                "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+                "priceUSD": "0.999809",
+                "tags": [
+                  "stablecoin"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              },
+              "amount": "147",
+              "amountUSD": "0.0001",
+              "percentage": "0.000148",
+              "included": true
+            }
+          ],
+          "gasCosts": [
+            {
+              "type": "SEND",
+              "price": "1",
+              "estimate": "5000",
+              "limit": "6500",
+              "amount": "5000",
+              "amountUSD": "0.0004",
+              "token": {
+                "address": "11111111111111111111111111111111",
+                "chainId": 1151111081099710,
+                "symbol": "SOL",
+                "decimals": 9,
+                "name": "SOL",
+                "coinKey": "SOL",
+                "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
+                "priceUSD": "82.5",
+                "tags": [
+                  "major_asset"
+                ],
+                "verificationStatus": "unverified",
+                "verificationStatusBreakdown": []
+              }
+            }
+          ],
+          "tool": "across"
+        },
+        "tool": "across",
+        "toolDetails": {
+          "key": "across",
+          "name": "AcrossV4",
+          "logoURI": "https://raw.githubusercontent.com/lifinance/types/main/src/assets/icons/bridges/across.svg"
+        }
+      }
+    ],
+    "integrator": "lifi-api",
+    "executionType": "transaction",
+    "transactionRequest": {
+      "data": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQALEDIc+lrdGF6Ik6X9iAE/6k8mGGIdHoAr0yOKDGoow19VHjrEm7h13fClkX4JP08RKWkco58DZDtylfYrUlbjPv5y9EWzoZrASNKpKP4HdM97i176fGRXy8y8guzw6sk8eSsI3WkEL9r8K+PL45cP/cvQ48+WWojTutnti4t6eTLL9dndwrXZlCd+Feo4ARej+O8Ezh434sZ4w75NEbKl0DQDBkZv5SEXMv/srbpyw5vnvIzlu8X3EmssQ5s6QAAAACg9DdKCNU/vCuOw4ifTfNicomb7F93498t8zvvk69xVBqfVFxjHdMkoVmOYaR1etoteuKObS21cc1VbIQAAAAAD5SjUwAN5f+RqwrDAP681ShpbSOlqyHwaJLzrM+68Nwbd9uHXZaGT2cvhRs7reawctIXtX1s3kTqM9YV+/wCpxvp6877brTo9ZfNqq8l0MbG75MLS9uDkfKYCA0UvXWGJRbHk1Uf5kaMsvEDVt9fTYL18hVlbzZDYNTVbYAWYbrdmQIbeN+5wghwQRFsWLyx+yHlb0IAMFGKUniMo0d1ajJclj04kifG7PRApFI4NgwtaE5na/xCEBI572Nvp+FkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANCjSvsODzf6vj5vY7KzoSwQ1mZBRglQHZphYjH15xW8dlY2cfUNDdTBL+hx1W12OA088A0Al/e8GkyH9t3cyskGBQAFAhDrCQAFAAkD+0wAAAAAAAAGAgcICQD2wHwBBTVrAAkEAQoCAAoMxAkAAAAAAAAGCQQBCgsACg18OA8AAAAAAAYMCwADCwEECgkNDg8M6AHyI8aJUuHytjIc+lrdGF6Ik6X9iAE/6k8mGGIdHoAr0yOKDGoow19VAAAAAAAAAAAAAAAA85/W5RqtiPb0zmq4gnJ5z/+5ImbG+nrzvtutOj1l82qryXQxsbvkwtL24OR8pgIDRS9dYQAAAAAAAAAAAAAAAK+I0GXnfIzCI5Mnxe2zpDImjlgxfDgPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8g7LGkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADbSslpz27JaQAAAAAAAAAAAA=="
+    },
+    "transactionId": "0xf6c07c0105356b00"
+  }

@@ -26,9 +26,27 @@ pub enum PortalError {
     #[msg("Vault token account has no balance")]
     EmptyVaultTokenAccount,
 
+    #[msg("Contract is paused")]
+    Paused,
+
+    #[msg("Portal authority is immutable")]
+    AuthorityImmutable,
+
     #[msg("Invalid secp256k1 signature or public key mismatch")]
     InvalidSecp256k1Signature,
 
     #[msg("Recovery message hash must be 32 bytes")]
     InvalidMessageHash,
+
+    #[msg("Across bridge: input amount must match vault token balance")]
+    AcrossInputAmountMismatch,
+
+    #[msg("Across bridge: message payload too large")]
+    AcrossMessageTooLong,
+
+    #[msg("Across bridge: SOL vault cannot cover wrap amount plus rent")]
+    AcrossInsufficientSolForWrap,
+
+    #[msg("Across bridge: mint must be wrapped SOL (native mint)")]
+    InvalidNativeMint,
 }

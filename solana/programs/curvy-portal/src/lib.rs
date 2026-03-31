@@ -1,24 +1,28 @@
 use anchor_lang::prelude::*;
 
-pub mod constants;
+
+pub mod across_bridge;
+pub use across_bridge::{evm_address_to_pubkey, output_amount_bytes32, AcrossBridgeQuoteParams};
+pub mod seeds;
 pub mod error;
 pub mod instructions;
+pub mod events;
 pub mod state;
 
 use instructions::*;
 
-declare_id!("2xtW8gNRYb82DSqS9Frv3KLNyeKkGMjtRYDxUtu83Na7");
+declare_id!("Ag38g4zSqKjisruG1S8K4UGS2eEdHf1iRJbTxdw4TiR5");
+declare_program!(across);
+declare_program!(relay_depository);
 
 #[program]
 pub mod curvy_portal {
     use super::*;
 
-    /// Initialize the global portal config. Called once after deployment.
     pub fn initialize(ctx: Context<Initialize>, operator: Pubkey) -> Result<()> {
         instructions::initialize::handler(ctx, operator)
     }
 
-    /// Update the portal config (operator, authority). Authority-only.
     pub fn update_config(
         ctx: Context<UpdateConfig>,
         new_operator: Option<Pubkey>,
@@ -27,46 +31,77 @@ pub mod curvy_portal {
         instructions::update_config::handler(ctx, new_operator, new_authority)
     }
 
-    /// Initialize a portal and withdraw native SOL from the vault PDA to the operator.
-    /// The operator then bridges these funds to Arbitrum via LiFi in the same transaction.
-    pub fn create_and_bridge_sol(
-        ctx: Context<CreateAndBridgeSol>,
-        owner_hash: [u8; 32],
-    ) -> Result<()> {
-        instructions::create_and_bridge_sol::handler(ctx, owner_hash)
+    pub fn pause(ctx: Context<Pause>, paused: bool) -> Result<()> {
+        instructions::pause::handler(ctx, paused)?;
+        Ok(())
     }
 
-    /// Initialize a portal and withdraw SPL tokens from the vault PDA's ATA to the operator.
-    /// The operator then bridges these funds to Arbitrum via LiFi in the same transaction.
-    pub fn create_and_bridge_spl(
-        ctx: Context<CreateAndBridgeSpl>,
-        owner_hash: [u8; 32],
-    ) -> Result<()> {
-        instructions::create_and_bridge_spl::handler(ctx, owner_hash)
+    /// Admin/operator: prepare deterministic SOL vault PDA (stealth address).
+    pub fn create_stealth_sol(ctx: Context<CreateStealthSol>, owner_hash: [u8; 32]) -> Result<()> {
+        instructions::create_stealth_sol::handler(ctx, owner_hash)
     }
 
-    /// Recover native SOL from a portal vault.
-    /// Authorization is proved via a SECP256k1 signature over a bound message
-    /// (vault + recipient pubkeys), verified on-chain using Solana's secp256k1_recover syscall.
-    /// Works whether the portal has been initialized (bridged) or not.
+    /// Admin/operator: create vault ATA for SPL if needed.
+    pub fn create_stealth_spl_ata(
+        ctx: Context<CreateStealthSplAta>,
+        owner_hash: [u8; 32],
+    ) -> Result<()> {
+        instructions::create_stealth_spl_ata::handler(ctx, owner_hash)
+    }
+
+    /// Admin/operator: wrap vault SOL to WSOL then CPI Across `deposit` (quote params from LiFi / Across API).
+    pub fn bridge_sol(
+        ctx: Context<BridgeSol>,
+        owner_hash: [u8; 32],
+        input_amount: u64,
+        across_state_seed: u64,
+        quote: AcrossBridgeQuoteParams,
+    ) -> Result<()> {
+        instructions::bridge_across_sol::handler(ctx, owner_hash, input_amount, across_state_seed, quote)
+    }
+
+    /// Admin/operator: CPI Across `deposit` from vault ATA (full balance must match `input_amount`).
+    pub fn bridge_spl(
+        ctx: Context<BridgeSpl>,
+        owner_hash: [u8; 32],
+        input_amount: u64,
+        across_state_seed: u64,
+        quote: AcrossBridgeQuoteParams,
+    ) -> Result<()> {
+        instructions::bridge_across_spl::handler(ctx, owner_hash, input_amount, across_state_seed, quote)
+    }
+
+    pub fn bridge_relay_sol(
+        ctx: Context<BridgeRelaySol>,
+        owner_hash: [u8; 32],
+        input_amount: u64,
+        relay_id: [u8; 32],
+    ) -> Result<()> {
+        instructions::bridge_relay_sol::handler(ctx, owner_hash, input_amount, relay_id)
+    }
+
+    pub fn bridge_relay_spl(
+        ctx: Context<BridgeRelaySpl>,
+        owner_hash: [u8; 32],
+        input_amount: u64,
+        relay_id: [u8; 32],
+    ) -> Result<()> {
+        instructions::bridge_relay_spl::handler(ctx, owner_hash, input_amount, relay_id)
+    }
+
     pub fn recover_sol(
         ctx: Context<RecoverSol>,
         owner_hash: [u8; 32],
-        secp_sig: [u8; 64],
-        recovery_id: u8,
     ) -> Result<()> {
-        instructions::recover_sol::handler(ctx, owner_hash, secp_sig, recovery_id)
+        instructions::recover_sol::handler(ctx, owner_hash)?;
+        Ok(())
     }
 
-    /// Recover SPL tokens from a portal vault's ATA.
-    /// Same secp256k1 authorization as recover_sol.
-    /// Closes the empty ATA after transfer, returning rent to the payer.
     pub fn recover_spl(
         ctx: Context<RecoverSpl>,
         owner_hash: [u8; 32],
-        secp_sig: [u8; 64],
-        recovery_id: u8,
     ) -> Result<()> {
-        instructions::recover_spl::handler(ctx, owner_hash, secp_sig, recovery_id)
+        instructions::recover_spl::handler(ctx, owner_hash)?;
+        Ok(())
     }
 }

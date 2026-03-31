@@ -1,0 +1,96 @@
+[3/27/26 4:56 PM] Vanja Obradovic: === Solana Versioned Transaction Decoded ===
+
+Signatures:
+  [0] 1111111111111111111111111111111111111111111111111111111111111111
+
+Version: 0
+Recent Blockhash: G7JUXBJfJUqHuZNBDSx5ventwnCfz8oZ8JCcJ75fA7w1
+
+Static Account Keys (13):
+  [0] HRt9BJDR4dWRZmrC1Ty64JkGoRiD3eXgnmsurHsEVq24 (signer)
+  [1] 7M9XXq6zfySnhZQX82HX9qufTEphffY77hT3Jaatc2u9 
+  [2] 8jjWmLhYdqrtFMcEkiMDdqkEN85cvEFnNS4LFgNf5NRv 
+  [3] GcEXL4PFcqbtBjd9uyirwBRWvJGmvkC4JT841VKSAUBU 
+  [4] ComputeBudget111111111111111111111111111111 (readonly)
+  [5] 3i5JeuZuUxeKtVysUnwQNGerJP2bSMX9fTFfS4Nxe3Br (readonly)
+  [6] SysvarC1ock11111111111111111111111111111111 (readonly)
+  [7] 2rbTw5aMJXni3zjGUxyaML1Uxg7mg6tSU8dUF44rBKBz (readonly)
+  [8] TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA (readonly)
+  [9] EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v (readonly)
+  [10] ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL (readonly)
+  [11] 9TjPAdiXyUMK4kJYfvxa13CHiYUMmqCNKnvMwworgTqr (readonly)
+  [12] 11111111111111111111111111111111 (readonly)
+
+Compiled Instructions (6):
+
+--- Instruction 0 ---
+  Program ID: ComputeBudget111111111111111111111111111111 (index 4)
+  Account Indexes: []
+  Accounts:
+  Data (hex): 0210eb0900
+  Data (base64): AhDrCQA=
+
+--- Instruction 1 ---
+  Program ID: ComputeBudget111111111111111111111111111111 (index 4)
+  Account Indexes: []
+  Accounts:
+  Data (hex): 0350c3000000000000
+  Data (base64): A1DDAAAAAAAA
+
+--- Instruction 2 ---
+  Program ID: 3i5JeuZuUxeKtVysUnwQNGerJP2bSMX9fTFfS4Nxe3Br (index 5)
+  Account Indexes: [6,7]
+  Accounts:
+    [0] SysvarC1ock11111111111111111111111111111111
+    [1] 2rbTw5aMJXni3zjGUxyaML1Uxg7mg6tSU8dUF44rBKBz
+  Data (hex): 00a600d7b5239b8100
+  Data (base64): AKYA17Ujm4EA
+
+--- Instruction 3 ---
+  Program ID: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA (index 😍
+  Account Indexes: [1,9,2,0]
+  Accounts:
+    [0] 7M9XXq6zfySnhZQX82HX9qufTEphffY77hT3Jaatc2u9
+    [1] EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+    [2] 8jjWmLhYdqrtFMcEkiMDdqkEN85cvEFnNS4LFgNf5NRv
+    [3] HRt9BJDR4dWRZmrC1Ty64JkGoRiD3eXgnmsurHsEVq24
+  Data (hex): 0ca86100000000000006
+  Data (base64): DKhhAAAAAAAABg==
+
+--- Instruction 4 ---
+  Program ID: ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL (index 10)
+  Account Indexes: [0,3,11,9,12,8]
+  Accounts:
+    [0] HRt9BJDR4dWRZmrC1Ty64JkGoRiD3eXgnmsurHsEVq24
+    [1] GcEXL4PFcqbtBjd9uyirwBRWvJGmvkC4JT841VKSAUBU
+    [2] 9TjPAdiXyUMK4kJYfvxa13CHiYUMmqCNKnvMwworgTqr
+    [3] EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+    [4] 11111111111111111111111111111111
+    [5] TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+  Data (hex): 01
+  Data (base64): AQ==
+
+--- Instruction 5 ---
+  Program ID: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA (index 😍
+  Account Indexes: [1,9,3,0]
+  Accounts:
+    [0] 7M9XXq6zfySnhZQX82HX9qufTEphffY77hT3Jaatc2u9
+    [1] EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+    [2] GcEXL4PFcqbtBjd9uyirwBRWvJGmvkC4JT841VKSAUBU
+    [3] HRt9BJDR4dWRZmrC1Ty64JkGoRiD3eXgnmsurHsEVq24
+  Data (hex): 0cd83498000000000006
+  Data (base64): DNg0mAAAAAAABg==
+[3/27/26 4:57 PM] Vanja Obradovic: Accounts Involved:
+[0] HRt9BJDR4dWRZmrC1Ty64JkGoRiD3eXgnmsurHsEVq24
+[1] 7M9XXq6zfySnhZQX82HX9qufTEphffY77hT3Jaatc2u9
+[2] 8jjWmLhYdqrtFMcEkiMDdqkEN85cvEFnNS4LFgNf5NRv
+[3] GcEXL4PFcqbtBjd9uyirwBRWvJGmvkC4JT841VKSAUBU
+[4] ComputeBudget111111111111111111111111111111
+[5] 3i5JeuZuUxeKtVysUnwQNGerJP2bSMX9fTFfS4Nxe3Br
+[6] SysvarC1ock11111111111111111111111111111111
+[7] 2rbTw5aMJXni3zjGUxyaML1Uxg7mg6tSU8dUF44rBKBz
+[8] TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+[9] EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+[10] ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL
+[11] 9TjPAdiXyUMK4kJYfvxa13CHiYUMmqCNKnvMwworgTqr
+[12] 11111111111111111111111111111111

@@ -6,3 +6,5 @@ Anchor.toml.bak
 
 # Solana IDL generated files
 **/*.json.map
+.surfpool
+/node_modules
