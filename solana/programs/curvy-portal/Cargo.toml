@@ -19,4 +19,5 @@ idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 [dependencies]
 anchor-lang = { workspace = true, features = ["init-if-needed"] }
 anchor-spl = { workspace = true }
+libsecp256k1 = { version = "0.7", default-features = false }
 solana-program = "2"

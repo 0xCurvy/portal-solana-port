@@ -3,25 +3,40 @@ use anchor_spl::associated_token::AssociatedToken;
 
 use anchor_spl::token::{self, CloseAccount, Mint, Token, TokenAccount, Transfer};
 
-use crate::seeds::{PORTAL_META_SEED, PORTAL_SEED, SOLANA_RECOVERY_DOMAIN};
+use crate::recovery;
+use crate::seeds::{PORTAL_META_SEED, PORTAL_SEED};
 use crate::error::PortalError;
 use crate::events::PortalRecoveredSpl;
 
 pub fn handler(
     ctx: Context<RecoverSpl>,
     owner_hash: [u8; 32],
+    recovery_identifier: [u8; 32],
+    recovery_id: u8,
+    signature: [u8; 64],
 ) -> Result<()> {
-    let payer = ctx.accounts.payer.key();
+    recovery::verify_spl_recovery(
+        ctx.program_id,
+        &owner_hash,
+        &recovery_identifier,
+        &ctx.accounts.recipient.key(),
+        &ctx.accounts.mint.key(),
+        &signature,
+        recovery_id,
+    )?;
+
+    
 
     let token_balance = ctx.accounts.vault_token_account.amount;
 
     let owner_hash_ref = owner_hash.as_ref();
+    let recovery_id_ref = recovery_identifier.as_ref();
     let vault_bump = ctx.bumps.vault;
     let vault_bump_seed = [vault_bump];
     let vault_seeds: &[&[u8]] = &[
         PORTAL_SEED,
         owner_hash_ref,
-        payer.as_ref(),
+        recovery_id_ref,
         &vault_bump_seed,
     ];
     let signer_seeds = [vault_seeds];
@@ -50,8 +65,8 @@ pub fn handler(
     ))?;
 
     emit!(PortalRecoveredSpl {
-        owner_hash: owner_hash,
-        recovery_identifier: ctx.accounts.payer.key(),
+        owner_hash,
+        recovery_identifier: recovery_identifier,
         vault: ctx.accounts.vault.key(),
         vault_token_account: ctx.accounts.vault_token_account.key(),
         recipient_token_account: ctx.accounts.recipient_token_account.key(),
@@ -65,14 +80,14 @@ pub fn handler(
 }
 
 #[derive(Accounts)]
-#[instruction(owner_hash: [u8; 32])]
+#[instruction(owner_hash: [u8; 32], recovery_identifier: [u8; 32], recovery_id: u8, signature: [u8; 64])]
 pub struct RecoverSpl<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
     /// CHECK: Vault PDA — authority for the vault token account.
     #[account(
-        seeds = [PORTAL_SEED, owner_hash.as_ref(), payer.key().as_ref()],
+        seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
         constraint = owner_hash != [0u8; 32] @ PortalError::InvalidOwnerHash,
     )]
@@ -92,14 +107,14 @@ pub struct RecoverSpl<'info> {
     )]
     pub recipient_token_account: Account<'info, TokenAccount>,
 
-    /// CHECK: Any recipient address. Bound into the signed message to prevent front-running.
+    /// CHECK: Bound into signed message hash.
     pub recipient: UncheckedAccount<'info>,
 
     pub mint: Account<'info, Mint>,
 
-    /// CHECK: Validated via PDA seeds.
+    /// CHECK: Portal metadata PDA (same seeds as vault).
     #[account(
-        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), payer.key().as_ref()],
+        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
     )]
     pub portal_meta: UncheckedAccount<'info>,
@@ -108,5 +123,3 @@ pub struct RecoverSpl<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
-
-

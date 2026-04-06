@@ -24,6 +24,14 @@ import axios from "axios";
 import { keccak_256 } from "@noble/hashes/sha3";
 import * as fs from "fs";
 import * as path from "path";
+import {
+  pubkeyToArray32,
+  randomSecpPriv,
+  recoveryIdentifierFromSecpPriv,
+  secpPrivFromSeed,
+  signSolRecovery,
+  signSplRecovery,
+} from "./recovery_helpers";
 
 describe("curvy-portal", () => {
   const provider = anchor.AnchorProvider.env();
@@ -55,9 +63,13 @@ describe("curvy-portal", () => {
     return h;
   };
 
-  let sharedRecoverySolKeypair: Keypair | null = null;
+  /** SECP256k1 priv (32 bytes) — shared SOL vault recover tests */
+  let sharedSecpSolPriv: Uint8Array | null = null;
+  let sharedRecoveryIdSol: PublicKey | null = null;
 
-  let sharedRecoverySplKeypair: Keypair | null = null;
+  /** SECP256k1 priv — shared SPL vault recover tests */
+  let sharedSecpSplPriv: Uint8Array | null = null;
+  let sharedRecoveryIdSpl: PublicKey | null = null;
   let sharedSplMint: PublicKey | null = null;
   let sharedSplOperator: Keypair | null = null;
 
@@ -348,14 +360,13 @@ describe("curvy-portal", () => {
     });
 
     it("succeeds with valid owner hash and recovery", async () => {
-      sharedRecoverySolKeypair = Keypair.generate();
-      await airdrop(sharedRecoverySolKeypair);
+      sharedSecpSolPriv = secpPrivFromSeed("curvy-test-shared-sol-recovery");
+      sharedRecoveryIdSol = recoveryIdentifierFromSecpPriv(sharedSecpSolPriv);
 
       await program.methods
-        .createStealthSol(sharedStealthOwnerHash())
+        .createStealthSol(sharedStealthOwnerHash(), pubkeyToArray32(sharedRecoveryIdSol))
         .accounts({
           operator: operator.publicKey,
-          recovery: sharedRecoverySolKeypair.publicKey,
         })
         .signers([operator])
         .rpc();
@@ -364,14 +375,13 @@ describe("curvy-portal", () => {
     it("fails when signer is not the configured operator", async () => {
       const attacker = Keypair.generate();
       await airdrop(attacker);
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
 
       try {
         await program.methods
-          .createStealthSol(sharedStealthOwnerHash())
+          .createStealthSol(sharedStealthOwnerHash(), pubkeyToArray32(recoveryId))
           .accounts({
             operator: attacker.publicKey,
-            recovery: recovery.publicKey,
           })
           .signers([attacker])
           .rpc();
@@ -389,15 +399,14 @@ describe("curvy-portal", () => {
     });
 
     it("fails when owner hash is all zero", async () => {
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
       const zeroHash = new Array<number>(32).fill(0);
 
       try {
         await program.methods
-          .createStealthSol(zeroHash)
+          .createStealthSol(zeroHash, pubkeyToArray32(recoveryId))
           .accounts({
             operator: operator.publicKey,
-            recovery: recovery.publicKey,
           })
           .signers([operator])
           .rpc();
@@ -421,14 +430,13 @@ describe("curvy-portal", () => {
         })
         .rpc();
 
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
 
       try {
         await program.methods
-          .createStealthSol(sharedStealthOwnerHash())
+          .createStealthSol(sharedStealthOwnerHash(), pubkeyToArray32(recoveryId))
           .accounts({
             operator: operator.publicKey,
-            recovery: recovery.publicKey,
           })
           .signers([operator])
           .rpc();
@@ -483,14 +491,13 @@ describe("curvy-portal", () => {
     });
 
     it("creates vault ATA for mint and matches vault PDA authority", async () => {
-      sharedRecoverySplKeypair = Keypair.generate();
-      await airdrop(sharedRecoverySplKeypair);
+      sharedSecpSplPriv = secpPrivFromSeed("curvy-test-shared-spl-recovery");
+      sharedRecoveryIdSpl = recoveryIdentifierFromSecpPriv(sharedSecpSplPriv);
 
       await program.methods
-        .createStealthSplAta(sharedStealthOwnerHash())
+        .createStealthSplAta(sharedStealthOwnerHash(), pubkeyToArray32(sharedRecoveryIdSpl))
         .accounts({
           operator: operator.publicKey,
-          recovery: sharedRecoverySplKeypair.publicKey,
           mint,
         })
         .signers([operator])
@@ -498,7 +505,7 @@ describe("curvy-portal", () => {
 
       const ownerBuf = Buffer.from(sharedStealthOwnerHash());
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED, ownerBuf, sharedRecoverySplKeypair.publicKey.toBuffer()],
+        [PORTAL_SEED, ownerBuf, sharedRecoveryIdSpl.toBuffer()],
         program.programId
       );
 
@@ -515,14 +522,13 @@ describe("curvy-portal", () => {
     it("fails when signer is not the configured operator", async () => {
       const attacker = Keypair.generate();
       await airdrop(attacker);
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
 
       try {
         await program.methods
-          .createStealthSplAta(sharedStealthOwnerHash())
+          .createStealthSplAta(sharedStealthOwnerHash(), pubkeyToArray32(recoveryId))
           .accounts({
             operator: attacker.publicKey,
-            recovery: recovery.publicKey,
             mint,
           })
           .signers([attacker])
@@ -541,15 +547,14 @@ describe("curvy-portal", () => {
     });
 
     it("fails when owner hash is all zero", async () => {
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
       const zeroHash = new Array<number>(32).fill(0);
 
       try {
         await program.methods
-          .createStealthSplAta(zeroHash)
+          .createStealthSplAta(zeroHash, pubkeyToArray32(recoveryId))
           .accounts({
             operator: operator.publicKey,
-            recovery: recovery.publicKey,
             mint,
           })
           .signers([operator])
@@ -574,14 +579,13 @@ describe("curvy-portal", () => {
         })
         .rpc();
 
-      const recovery = Keypair.generate();
+      const recoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
 
       try {
         await program.methods
-          .createStealthSplAta(sharedStealthOwnerHash())
+          .createStealthSplAta(sharedStealthOwnerHash(), pubkeyToArray32(recoveryId))
           .accounts({
             operator: operator.publicKey,
-            recovery: recovery.publicKey,
             mint,
           })
           .signers([operator])
@@ -613,15 +617,14 @@ describe("curvy-portal", () => {
       await connection.confirmTransaction(sig, "confirmed");
     };
 
-    it("withdraws SOL to recipient (same owner_hash + payer as create_stealth_sol)", async () => {
-      if (!sharedRecoverySolKeypair) {
-        throw new Error("expected sharedRecoverySolKeypair from createStealthSol");
+    it("withdraws SOL to recipient (ECDSA + arbitrary fee payer)", async () => {
+      if (!sharedSecpSolPriv || !sharedRecoveryIdSol) {
+        throw new Error("expected shared secp + recovery id from createStealthSol");
       }
-      const payer = sharedRecoverySolKeypair;
       const ownerHash = sharedStealthOwnerHash();
       const ownerBuf = Buffer.from(ownerHash);
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED, ownerBuf, payer.publicKey.toBuffer()],
+        [PORTAL_SEED, ownerBuf, sharedRecoveryIdSol.toBuffer()],
         program.programId
       );
 
@@ -635,17 +638,26 @@ describe("curvy-portal", () => {
       );
       await provider.sendAndConfirm(tx);
 
+      const feePayer = Keypair.generate();
+      await airdrop(feePayer);
       const recipient = Keypair.generate();
-      await airdrop(recipient);
       const beforeBal = await connection.getBalance(recipient.publicKey);
 
+      const { signature, recoveryId } = signSolRecovery(
+        sharedSecpSolPriv,
+        program.programId,
+        ownerHash,
+        sharedRecoveryIdSol,
+        recipient.publicKey
+      );
+
       await program.methods
-        .recoverSol(ownerHash)
+        .recoverSol(ownerHash, pubkeyToArray32(sharedRecoveryIdSol), recoveryId, signature)
         .accounts({
-          payer: payer.publicKey,
+          payer: feePayer.publicKey,
           recipient: recipient.publicKey,
         })
-        .signers([payer])
+        .signers([feePayer])
         .rpc();
 
       const afterBal = await connection.getBalance(recipient.publicKey);
@@ -662,20 +674,19 @@ describe("curvy-portal", () => {
       await connection.confirmTransaction(sig, "confirmed");
     };
 
-    it("withdraws SPL to recipient (same owner_hash + payer as create_stealth_spl_ata)", async () => {
-      if (!sharedRecoverySplKeypair || !sharedSplMint || !sharedSplOperator) {
+    it("withdraws SPL to recipient (ECDSA + arbitrary fee payer)", async () => {
+      if (!sharedSecpSplPriv || !sharedRecoveryIdSpl || !sharedSplMint || !sharedSplOperator) {
         throw new Error(
           "expected shared SPL fixture from createStealthSplAta first test"
         );
       }
-      const payer = sharedRecoverySplKeypair;
       const mint = sharedSplMint;
       const operator = sharedSplOperator;
 
       const ownerHash = sharedStealthOwnerHash();
       const ownerBuf = Buffer.from(ownerHash);
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED, ownerBuf, payer.publicKey.toBuffer()],
+        [PORTAL_SEED, ownerBuf, sharedRecoveryIdSpl.toBuffer()],
         program.programId
       );
       const vaultAta = getAssociatedTokenAddressSync(mint, vault, true);
@@ -684,10 +695,9 @@ describe("curvy-portal", () => {
         await getAccount(connection, vaultAta);
       } catch {
         await program.methods
-          .createStealthSplAta(ownerHash)
+          .createStealthSplAta(ownerHash, pubkeyToArray32(sharedRecoveryIdSpl))
           .accounts({
             operator: operator.publicKey,
-            recovery: payer.publicKey,
             mint,
           })
           .signers([operator])
@@ -704,8 +714,9 @@ describe("curvy-portal", () => {
         amount
       );
 
+      const feePayer = Keypair.generate();
+      await airdrop(feePayer);
       const recipient = Keypair.generate();
-      await airdrop(recipient);
       const recipientAtaInfo = await getOrCreateAssociatedTokenAccount(
         connection,
         walletFundingKeypair(),
@@ -717,16 +728,25 @@ describe("curvy-portal", () => {
         TOKEN_PROGRAM_ID
       );
 
+      const { signature, recoveryId } = signSplRecovery(
+        sharedSecpSplPriv,
+        program.programId,
+        ownerHash,
+        sharedRecoveryIdSpl,
+        recipient.publicKey,
+        mint
+      );
+
       await program.methods
-        .recoverSpl(ownerHash)
+        .recoverSpl(ownerHash, pubkeyToArray32(sharedRecoveryIdSpl), recoveryId, signature)
         .accountsPartial({
-          payer: payer.publicKey,
+          payer: feePayer.publicKey,
           recipient: recipient.publicKey,
           mint,
           vaultTokenAccount: vaultAta,
           recipientTokenAccount: recipientAtaInfo.address,
         })
-        .signers([payer])
+        .signers([feePayer])
         .rpc();
 
       const recipientAcc = await getAccount(
@@ -737,27 +757,25 @@ describe("curvy-portal", () => {
     });
 
     it("create_stealth_spl_ata init_if_needed recreates vault ATA after recover closed it", async () => {
-      if (!sharedRecoverySplKeypair || !sharedSplMint || !sharedSplOperator) {
+      if (!sharedRecoveryIdSpl || !sharedSplMint || !sharedSplOperator) {
         throw new Error(
           "expected shared SPL fixture from createStealthSplAta first test"
         );
       }
-      const payer = sharedRecoverySplKeypair;
       const mint = sharedSplMint;
       const operator = sharedSplOperator;
       const ownerHash = sharedStealthOwnerHash();
       const ownerBuf = Buffer.from(ownerHash);
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED, ownerBuf, payer.publicKey.toBuffer()],
+        [PORTAL_SEED, ownerBuf, sharedRecoveryIdSpl.toBuffer()],
         program.programId
       );
       const vaultAta = getAssociatedTokenAddressSync(mint, vault, true);
 
       await program.methods
-        .createStealthSplAta(ownerHash)
+        .createStealthSplAta(ownerHash, pubkeyToArray32(sharedRecoveryIdSpl))
         .accounts({
           operator: operator.publicKey,
-          recovery: payer.publicKey,
           mint,
         })
         .signers([operator])
@@ -1643,7 +1661,7 @@ describe("curvy-portal", () => {
     };
 
     let operator: Keypair;
-    let recovery: Keypair;
+    let recoveryIdAcross: PublicKey;
 
     const EVM_RECIPIENT = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const PORTAL_META_SEED_BUF = Buffer.from("portal_meta");
@@ -1658,9 +1676,11 @@ describe("curvy-portal", () => {
     before(async () => {
       operator = admin.payer as Keypair;
       if (!user1) throw new Error("USER1_SECRET_KEY is not set");
-      recovery = user1;
+      recoveryIdAcross = recoveryIdentifierFromSecpPriv(
+        secpPrivFromSeed("curvy-test-bridge-across-usdc")
+      );
       await airdrop(operator, 10);
-      await airdrop(recovery, 5);
+      await airdrop(user1, 5);
 
       await program.methods
         .updateConfig(operator.publicKey, null)
@@ -1668,10 +1688,9 @@ describe("curvy-portal", () => {
         .rpc();
 
       await program.methods
-        .createStealthSplAta(ownerHash())
+        .createStealthSplAta(ownerHash(), pubkeyToArray32(recoveryIdAcross))
         .accounts({
           operator: operator.publicKey,
-          recovery: recovery.publicKey,
           mint: USDC_SOLANA,
         })
         .signers([operator])
@@ -1683,7 +1702,7 @@ describe("curvy-portal", () => {
 
       const ownerBuf = Buffer.from(ownerHash());
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED_BUF, ownerBuf, recovery.publicKey.toBuffer()],
+        [PORTAL_SEED_BUF, ownerBuf, recoveryIdAcross.toBuffer()],
         program.programId
       );
       const vaultAta = getAssociatedTokenAddressSync(USDC_SOLANA, vault, true);
@@ -1756,10 +1775,15 @@ describe("curvy-portal", () => {
       let tx: string;
       try {
         tx = await program.methods
-          .bridgeSpl(ownerHash(), new BN(BRIDGE_AMOUNT), new BN(0), quoteParams)
+          .bridgeSpl(
+            ownerHash(),
+            pubkeyToArray32(recoveryIdAcross),
+            new BN(BRIDGE_AMOUNT),
+            new BN(0),
+            quoteParams
+          )
           .accounts({
             operator: operator.publicKey,
-            recovery: recovery.publicKey,
             mint: USDC_SOLANA,
             // @ts-ignore
             acrossProgram: ACROSS_V4_PROGRAM_ID,
@@ -1782,7 +1806,7 @@ describe("curvy-portal", () => {
       }
 
       const [portalPda] = PublicKey.findProgramAddressSync(
-        [PORTAL_META_SEED_BUF, ownerBuf, recovery.publicKey.toBuffer()],
+        [PORTAL_META_SEED_BUF, ownerBuf, recoveryIdAcross.toBuffer()],
         program.programId
       );
       const portal = await program.account.portalAccount.fetch(portalPda);
@@ -1792,8 +1816,7 @@ describe("curvy-portal", () => {
     });
 
     it("fails when the vault_token_account is empty", async () => {
-      const emptyRecovery = Keypair.generate();
-      await airdrop(emptyRecovery, 2);
+      const emptyRecoveryId = recoveryIdentifierFromSecpPriv(randomSecpPriv());
 
       const emptyHash = (): number[] => {
         const h = new Array<number>(32).fill(0);
@@ -1802,10 +1825,9 @@ describe("curvy-portal", () => {
       };
 
       await program.methods
-        .createStealthSplAta(emptyHash())
+        .createStealthSplAta(emptyHash(), pubkeyToArray32(emptyRecoveryId))
         .accounts({
           operator: operator.publicKey,
-          recovery: emptyRecovery.publicKey,
           mint: USDC_SOLANA,
         })
         .signers([operator])
@@ -1825,7 +1847,7 @@ describe("curvy-portal", () => {
 
       const acrossVault = getAssociatedTokenAddressSync(USDC_SOLANA, ACROSS_STATE, true);
       const [emptyVault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED_BUF, Buffer.from(emptyHash()), emptyRecovery.publicKey.toBuffer()],
+        [PORTAL_SEED_BUF, Buffer.from(emptyHash()), emptyRecoveryId.toBuffer()],
         program.programId
       );
       const emptyVaultAta = getAssociatedTokenAddressSync(USDC_SOLANA, emptyVault, true);
@@ -1838,10 +1860,15 @@ describe("curvy-portal", () => {
 
       try {
         await program.methods
-          .bridgeSpl(emptyHash(), new BN(1_000_000), new BN(0), dummyQuoteParams)
+          .bridgeSpl(
+            emptyHash(),
+            pubkeyToArray32(emptyRecoveryId),
+            new BN(1_000_000),
+            new BN(0),
+            dummyQuoteParams
+          )
           .accounts({
             operator: operator.publicKey,
-            recovery: emptyRecovery.publicKey,
             mint: USDC_SOLANA,
             // @ts-ignore
             acrossProgram: ACROSS_V4_PROGRAM_ID,
@@ -1873,8 +1900,8 @@ describe("curvy-portal", () => {
     };
 
     let operator: Keypair;
-    let recoverySpl: Keypair;
-    let recoverySol: Keypair;
+    let recoveryIdRelaySpl: PublicKey;
+    let recoveryIdRelaySol: PublicKey;
 
     const EVM_RECIPIENT = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const RELAY_PROGRAM_ID = new PublicKey("99vQwtBwYtrqqD9YSXbdum3KBdxPAVxYTaQ3cfnJSrN2");
@@ -1898,10 +1925,14 @@ describe("curvy-portal", () => {
     before(async () => {
       operator = admin.payer as Keypair;
       if (!user1) throw new Error("USER1_SECRET_KEY is not set");
-      recoverySpl = user1;
-      recoverySol = user1;
+      recoveryIdRelaySpl = recoveryIdentifierFromSecpPriv(
+        secpPrivFromSeed("curvy-test-bridge-relay-spl")
+      );
+      recoveryIdRelaySol = recoveryIdentifierFromSecpPriv(
+        secpPrivFromSeed("curvy-test-bridge-relay-sol")
+      );
       await airdrop(operator, 10);
-      await airdrop(recoverySpl, 5);
+      await airdrop(user1, 5);
 
       await program.methods
         .updateConfig(operator.publicKey, null)
@@ -1909,20 +1940,18 @@ describe("curvy-portal", () => {
         .rpc();
 
       await program.methods
-        .createStealthSplAta(ownerHashSpl())
+        .createStealthSplAta(ownerHashSpl(), pubkeyToArray32(recoveryIdRelaySpl))
         .accounts({
           operator: operator.publicKey,
-          recovery: recoverySpl.publicKey,
           mint: USDC_SOLANA,
         })
         .signers([operator])
         .rpc();
 
       await program.methods
-        .createStealthSol(ownerHashSol())
+        .createStealthSol(ownerHashSol(), pubkeyToArray32(recoveryIdRelaySol))
         .accounts({
           operator: operator.publicKey,
-          recovery: recoverySol.publicKey,
         })
         .signers([operator])
         .rpc();
@@ -1937,7 +1966,7 @@ describe("curvy-portal", () => {
       );
       const [relayVault] = PublicKey.findProgramAddressSync([RELAY_VAULT_SEED], RELAY_PROGRAM_ID);
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED_BUF, ownerBuf, recoverySol.publicKey.toBuffer()],
+        [PORTAL_SEED_BUF, ownerBuf, recoveryIdRelaySol.toBuffer()],
         program.programId
       );
 
@@ -1964,10 +1993,14 @@ describe("curvy-portal", () => {
       const shortfall = Math.max(0, requiredLamports - vaultLamportsAfter);
 
       const tx = await (program as any).methods
-        .bridgeRelaySol(ownerHashSol(), new BN(BRIDGE_LAMPORTS), relayIdBytes)
+        .bridgeRelaySol(
+          ownerHashSol(),
+          pubkeyToArray32(recoveryIdRelaySol),
+          new BN(BRIDGE_LAMPORTS),
+          relayIdBytes
+        )
         .accounts({
           operator: operator.publicKey,
-          recovery: recoverySol.publicKey,
           relayProgram: RELAY_PROGRAM_ID,
           relayDepository,
           relayVault,
@@ -1979,7 +2012,7 @@ describe("curvy-portal", () => {
       expect(tx).to.be.a("string");
 
       const [portalPda] = PublicKey.findProgramAddressSync(
-        [PORTAL_META_SEED_BUF, ownerBuf, recoverySol.publicKey.toBuffer()],
+        [PORTAL_META_SEED_BUF, ownerBuf, recoveryIdRelaySol.toBuffer()],
         program.programId
       );
       const portal = await program.account.portalAccount.fetch(portalPda);
@@ -2000,7 +2033,7 @@ describe("curvy-portal", () => {
       const relayVaultTokenAccount = getAssociatedTokenAddressSync(USDC_SOLANA, relayVault, true);
 
       const [vault] = PublicKey.findProgramAddressSync(
-        [PORTAL_SEED_BUF, ownerBuf, recoverySpl.publicKey.toBuffer()],
+        [PORTAL_SEED_BUF, ownerBuf, recoveryIdRelaySpl.toBuffer()],
         program.programId
       );
       const vaultAta = getAssociatedTokenAddressSync(USDC_SOLANA, vault, true);
@@ -2040,10 +2073,14 @@ describe("curvy-portal", () => {
       const vaultPdaLamportsBefore = await connection.getBalance(vault);
 
       const tx = await (program as any).methods
-        .bridgeRelaySpl(ownerHashSpl(), new BN(BRIDGE_AMOUNT), relayIdBytes)
+        .bridgeRelaySpl(
+          ownerHashSpl(),
+          pubkeyToArray32(recoveryIdRelaySpl),
+          new BN(BRIDGE_AMOUNT),
+          relayIdBytes
+        )
         .accounts({
           operator: operator.publicKey,
-          recovery: recoverySpl.publicKey,
           mint: USDC_SOLANA,
           relayProgram: RELAY_PROGRAM_ID,
           relayDepository,
@@ -2061,7 +2098,7 @@ describe("curvy-portal", () => {
       const vaultPdaLamportsAfter = await connection.getBalance(vault);
 
       const [portalPda] = PublicKey.findProgramAddressSync(
-        [PORTAL_META_SEED_BUF, ownerBuf, recoverySpl.publicKey.toBuffer()],
+        [PORTAL_META_SEED_BUF, ownerBuf, recoveryIdRelaySpl.toBuffer()],
         program.programId
       );
       const portal = await program.account.portalAccount.fetch(portalPda);

@@ -29,7 +29,7 @@ pub struct PauseToggled {
 #[event]
 pub struct PortalBridgedSol {
     pub owner_hash: [u8; 32],
-    pub recovery: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub portal: Pubkey,
     pub vault: Pubkey,
     pub operator: Pubkey,
@@ -44,7 +44,7 @@ pub struct PortalBridgedSol {
 #[event]
 pub struct PortalBridgedSpl {
     pub owner_hash: [u8; 32],
-    pub recovery: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub portal: Pubkey,
     pub vault: Pubkey,
     pub operator: Pubkey,
@@ -61,7 +61,7 @@ pub struct PortalBridgedSpl {
 #[event]
 pub struct PortalRecoveredSol {
     pub owner_hash: [u8; 32],
-    pub recovery_identifier: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub vault: Pubkey,
     pub recipient: Pubkey,
     pub lamports: u64,
@@ -71,7 +71,7 @@ pub struct PortalRecoveredSol {
 #[event]
 pub struct PortalRecoveredSpl {
     pub owner_hash: [u8; 32],
-    pub recovery_identifier: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub vault: Pubkey,
     pub vault_token_account: Pubkey,
     pub recipient_token_account: Pubkey,
@@ -84,14 +84,14 @@ pub struct PortalRecoveredSpl {
 #[event]
 pub struct StealthSolVaultPrepared {
     pub owner_hash: [u8; 32],
-    pub recovery: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub vault: Pubkey,
 }
 
 #[event]
 pub struct StealthSplAtaPrepared {
     pub owner_hash: [u8; 32],
-    pub recovery: Pubkey,
+    pub recovery_identifier: [u8; 32],
     pub vault: Pubkey,
     pub mint: Pubkey,
     pub vault_token_account: Pubkey,

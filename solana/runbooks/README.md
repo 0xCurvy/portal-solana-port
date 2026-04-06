@@ -83,3 +83,21 @@ $ surfpool start --watch
 ```console
 $ surfpool run deployment
 ```
+
+### Anchor tests (Surfpool / Surfnet)
+
+Tests use `anchor.workspace` and expect the program **already deployed** on the RPC Surfpool exposes (see `txtx.yml`, usually `http://127.0.0.1:8899`).
+
+1. Start Surfnet: `surfpool start` (or `surfpool start --watch` to redeploy from the `deployment` runbook when you rebuild).
+2. Deploy at least once: `surfpool run deployment` from the `solana/` directory (after `anchor build` if needed).
+3. Run tests against that RPC **without** starting another validator or redeploying from Anchor:
+   ```console
+   $ cd solana && ANCHOR_PROVIDER_URL=http://127.0.0.1:8899 yarn test:surfpool
+   ```
+   (`yarn test:surfpool` is `anchor test --skip-local-validator --skip-deploy`.)
+
+If you skip step 2, simulations fail with *This program may not be used for executing instructions* because the program account is missing on Surfnet.
+
+**After `anchor keys sync`:** the program id in `lib.rs` / `Anchor.toml` changes to match `target/deploy/curvy_portal-keypair.json`. Anything previously deployed under the *old* address is ignored — you must deploy again (step 2). If `anchor deploy` stalls on blockhash / many transactions, prefer `surfpool run deployment` (uses `instant_surfnet_deployment` in `runbooks/deployment/main.tx`). Do not interrupt the deploy.
+
+**Verify before tests:** `solana program show <PROGRAM_ID> -u http://127.0.0.1:8899` must list the program as loaded and executable.

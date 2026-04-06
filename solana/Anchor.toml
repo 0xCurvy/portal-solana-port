@@ -8,7 +8,7 @@ skip-lint = false
 curvy_portal = "5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP"
 
 [programs.localnet]
-curvy_portal = "Ag38g4zSqKjisruG1S8K4UGS2eEdHf1iRJbTxdw4TiR5"
+curvy_portal = "89YwAqGNyDoMJip8BjF2aTQaAn39VSRyZuEwy5PnYcnp"
 
 [programs.mainnet]
 curvy_portal = "5YHYjrHecckQdqdF9iEmkfcLj5s73RSUS7uiLJvvA9nP"

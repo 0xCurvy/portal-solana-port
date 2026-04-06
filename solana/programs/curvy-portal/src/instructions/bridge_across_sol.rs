@@ -14,6 +14,7 @@ use crate::state::{PortalAccount, PortalConfig};
 pub fn handler(
     ctx: Context<BridgeSol>,
     owner_hash: [u8; 32],
+    recovery_identifier: [u8; 32],
     input_amount: u64,
     across_state_seed: u64,
     quote: AcrossBridgeQuoteParams,
@@ -32,13 +33,13 @@ pub fn handler(
     );
 
     let owner_hash_ref = owner_hash.as_ref();
-    let recovery_key = ctx.accounts.recovery.key();
+    let recovery_id_ref = recovery_identifier.as_ref();
     let vault_bump = ctx.bumps.vault;
     let vault_bump_seed = [vault_bump];
     let vault_seeds: &[&[u8]] = &[
         PORTAL_SEED,
         owner_hash_ref,
-        recovery_key.as_ref(),
+        recovery_id_ref,
         &vault_bump_seed,
     ];
 
@@ -134,7 +135,7 @@ pub fn handler(
     let clock = Clock::get()?;
 
     portal.owner_hash = owner_hash;
-    portal.recovery = ctx.accounts.recovery.key();
+    portal.recovery_identifier = recovery_identifier;
     portal.is_used = true;
     portal.created_at = clock.unix_timestamp;
     portal.amount_withdrawn = input_amount;
@@ -144,7 +145,7 @@ pub fn handler(
 
     emit!(PortalBridgedSol {
         owner_hash: owner_hash,
-        recovery: ctx.accounts.recovery.key(),
+        recovery_identifier: recovery_identifier,
         portal: portal.key(),
         lamports: input_amount,
         vault: ctx.accounts.vault.key(),
@@ -160,7 +161,7 @@ pub fn handler(
 }
 
 #[derive(Accounts)]
-#[instruction(owner_hash: [u8; 32], input_amount: u64, across_state_seed: u64, quote: AcrossBridgeQuoteParams)]
+#[instruction(owner_hash: [u8; 32], recovery_identifier: [u8; 32], input_amount: u64, across_state_seed: u64, quote: AcrossBridgeQuoteParams)]
 pub struct BridgeSol<'info> {
     #[account(
         mut,
@@ -179,7 +180,7 @@ pub struct BridgeSol<'info> {
         init,
         payer = operator,
         space = 8 + PortalAccount::INIT_SPACE,
-        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), recovery.key().as_ref()],
+        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
     )]
     pub portal: Account<'info, PortalAccount>,
@@ -187,7 +188,7 @@ pub struct BridgeSol<'info> {
     /// CHECK: Vault PDA — signer for wrap + Across CPI.
     #[account(
         mut,
-        seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery.key().as_ref()],
+        seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
         constraint = owner_hash != [0u8; 32] @ PortalError::InvalidOwnerHash,
         constraint = vault.lamports() > 0 @ PortalError::InsufficientFunds,
@@ -224,9 +225,6 @@ pub struct BridgeSol<'info> {
 
     /// CHECK: Anchor event authority PDA.
     pub across_event_authority: AccountInfo<'info>,
-
-    /// CHECK: Recovery pubkey — part of PDA derivation.
-    pub recovery: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,

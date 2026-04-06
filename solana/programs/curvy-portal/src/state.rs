@@ -20,8 +20,8 @@ pub struct PortalConfig {
 pub struct PortalAccount {
     /// Owner hash matching EVM uint256 ownerHash (Poseidon hash)
     pub owner_hash: [u8; 32],
-    /// Recovery authority pubkey (stealth address)
-    pub recovery: Pubkey,
+    /// `SHA256(domain || compressed_secp256k1_pubkey)` — same 32-byte id as in vault PDA seeds
+    pub recovery_identifier: [u8; 32],
     /// Whether bridge has been executed (onlyOnce equivalent)
     pub is_used: bool,
     /// Timestamp when portal was created/bridged

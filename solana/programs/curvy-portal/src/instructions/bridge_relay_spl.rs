@@ -10,6 +10,7 @@ use crate::state::{PortalAccount, PortalConfig};
 pub fn handler(
     ctx: Context<BridgeRelaySpl>,
     owner_hash: [u8; 32],
+    recovery_identifier: [u8; 32],
     input_amount: u64,
     relay_id: [u8; 32],
 ) -> Result<()> {
@@ -19,13 +20,13 @@ pub fn handler(
     require!(input_amount == token_balance, PortalError::InsufficientFunds);
 
     let owner_hash_ref = owner_hash.as_ref();
-    let recovery_key = ctx.accounts.recovery.key();
+    let recovery_id_ref = recovery_identifier.as_ref();
     let vault_bump = ctx.bumps.vault;
     let vault_bump_seed = [vault_bump];
     let vault_seeds: &[&[u8]] = &[
         PORTAL_SEED,
         owner_hash_ref,
-        recovery_key.as_ref(),
+        recovery_id_ref,
         &vault_bump_seed,
     ];
     let signer_seeds = [vault_seeds];
@@ -52,7 +53,7 @@ pub fn handler(
     let portal = &mut ctx.accounts.portal;
     let clock = Clock::get()?;
     portal.owner_hash = owner_hash;
-    portal.recovery = ctx.accounts.recovery.key();
+    portal.recovery_identifier = recovery_identifier;
     portal.is_used = true;
     portal.created_at = clock.unix_timestamp;
     portal.amount_withdrawn = input_amount;
@@ -62,7 +63,7 @@ pub fn handler(
 
     emit!(PortalBridgedSpl {
         owner_hash,
-        recovery: ctx.accounts.recovery.key(),
+        recovery_identifier: recovery_identifier,
         portal: portal.key(),
         vault: ctx.accounts.vault.key(),
         operator: ctx.accounts.operator.key(),
@@ -80,7 +81,7 @@ pub fn handler(
 }
 
 #[derive(Accounts)]
-#[instruction(owner_hash: [u8; 32], input_amount: u64, relay_id: [u8; 32])]
+#[instruction(owner_hash: [u8; 32], recovery_identifier: [u8; 32], input_amount: u64, relay_id: [u8; 32])]
 pub struct BridgeRelaySpl<'info> {
     #[account(
         mut,
@@ -99,7 +100,7 @@ pub struct BridgeRelaySpl<'info> {
         init,
         payer = operator,
         space = 8 + PortalAccount::INIT_SPACE,
-        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), recovery.key().as_ref()],
+        seeds = [PORTAL_META_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
     )]
     pub portal: Account<'info, PortalAccount>,
@@ -107,7 +108,7 @@ pub struct BridgeRelaySpl<'info> {
     /// CHECK: Portal vault PDA; signer for Relay `deposit_token` CPI.
     #[account(
         mut,
-        seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery.key().as_ref()],
+        seeds = [PORTAL_SEED, owner_hash.as_ref(), recovery_identifier.as_ref()],
         bump,
         constraint = owner_hash != [0u8; 32] @ PortalError::InvalidOwnerHash,
     )]
@@ -137,9 +138,6 @@ pub struct BridgeRelaySpl<'info> {
     /// CHECK: Relay vault token ATA for `mint` (destination of deposit).
     #[account(mut)]
     pub relay_vault_token_account: AccountInfo<'info>,
-
-    /// CHECK: Recovery pubkey used in portal PDA seeds.
-    pub recovery: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
